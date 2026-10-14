@@ -3,6 +3,7 @@
 **Universidad Francisco Gavidia (UFG)**  
 **Facultad de Ingeniería y Sistemas**  
 **Asignatura:** Desarrollo de Aplicaciones Multiplataforma (DAP)  
+**Repositorio GitHub:** [https://github.com/titojonny/AgendaAcademica](https://github.com/titojonny/AgendaAcademica)  
 **Equipo de Desarrollo:**
 - **Jonathan Adonay Alas Girón** (Rol A - Modelo y Contrato)
 - **Mauro José Alfaro Amaya** (Rol B - Persistencia JSON y Pruebas)
