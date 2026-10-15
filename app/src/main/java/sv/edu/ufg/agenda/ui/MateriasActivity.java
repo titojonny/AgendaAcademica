@@ -78,17 +78,49 @@ public class MateriasActivity extends AppCompatActivity implements MateriaAdapte
         String nombre = etNombre.getText().toString().trim();
         String docente = etDocente.getText().toString().trim();
 
+        // 1. Validación de nombre obligatorio y longitud mínima
         if (nombre.isEmpty()) {
-            etNombre.setError("El nombre es obligatorio");
+            etNombre.setError("El nombre de la materia es obligatorio");
+            etNombre.requestFocus();
             return;
+        }
+        if (nombre.length() < 3) {
+            etNombre.setError("El nombre debe tener al menos 3 caracteres");
+            etNombre.requestFocus();
+            return;
+        }
+
+        // 2. Validación de docente obligatorio y longitud mínima
+        if (docente.isEmpty()) {
+            etDocente.setError("El nombre del docente es obligatorio");
+            etDocente.requestFocus();
+            return;
+        }
+        if (docente.length() < 3) {
+            etDocente.setError("El nombre del docente debe tener al menos 3 caracteres");
+            etDocente.requestFocus();
+            return;
+        }
+
+        // 3. Validación de duplicados (no permitir materias con el mismo nombre)
+        for (Materia m : materiaDAO.listar()) {
+            if (m.getNombre().equalsIgnoreCase(nombre)) {
+                if (enEdicion == null || m.getId() != enEdicion.getId()) {
+                    etNombre.setError("Ya existe una materia registrada con este nombre");
+                    etNombre.requestFocus();
+                    return;
+                }
+            }
         }
 
         if (enEdicion == null) {
             materiaDAO.insertar(new Materia(0, nombre, docente));
+            Toast.makeText(this, "Materia agregada con éxito", Toast.LENGTH_SHORT).show();
         } else {
             enEdicion.setNombre(nombre);
             enEdicion.setDocente(docente);
             materiaDAO.actualizar(enEdicion);
+            Toast.makeText(this, "Materia actualizada con éxito", Toast.LENGTH_SHORT).show();
         }
 
         limpiarFormulario();
@@ -99,6 +131,8 @@ public class MateriasActivity extends AppCompatActivity implements MateriaAdapte
         enEdicion = null;
         etNombre.setText("");
         etDocente.setText("");
+        etNombre.setError(null);
+        etDocente.setError(null);
         btnGuardar.setText("Agregar materia");
     }
 
@@ -131,6 +165,8 @@ public class MateriasActivity extends AppCompatActivity implements MateriaAdapte
         enEdicion = materia;
         etNombre.setText(materia.getNombre());
         etDocente.setText(materia.getDocente());
+        etNombre.setError(null);
+        etDocente.setError(null);
         btnGuardar.setText("Actualizar materia");
     }
 
@@ -144,7 +180,7 @@ public class MateriasActivity extends AppCompatActivity implements MateriaAdapte
     @Override
     public void eliminar(Materia materia) {
         if (!tareaDAO.listarPorMateria(materia.getId()).isEmpty()) {
-            Toast.makeText(this, "No se puede eliminar: la materia tiene tareas",
+            Toast.makeText(this, "No se puede eliminar: la materia tiene tareas pendientes o asignadas",
                     Toast.LENGTH_LONG).show();
             return;
         }
@@ -153,6 +189,7 @@ public class MateriasActivity extends AppCompatActivity implements MateriaAdapte
         if (enEdicion != null && enEdicion.getId() == materia.getId()) {
             limpiarFormulario();
         }
+        Toast.makeText(this, "Materia eliminada", Toast.LENGTH_SHORT).show();
         refrescar();
     }
 }

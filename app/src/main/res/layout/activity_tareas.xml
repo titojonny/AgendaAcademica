@@ -42,7 +42,10 @@
         android:id="@+id/etFechaEntrega"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Fecha de entrega (aaaa-mm-dd)"
+        android:hint="Fecha de entrega (toca para elegir fecha)"
+        android:focusable="false"
+        android:clickable="true"
+        android:cursorVisible="false"
         android:inputType="date" />
 
     <!-- Selector de prioridad (Actividad 3) -->

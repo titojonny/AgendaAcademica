@@ -1,5 +1,6 @@
 package sv.edu.ufg.agenda.ui;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,7 +15,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import sv.edu.ufg.agenda.AgendaApp;
@@ -54,7 +57,7 @@ public class TareasActivity extends AppCompatActivity implements TareaAdapter.Ac
         materiaDAO = daos.materias();
         tareaDAO = daos.tareas();
 
-        // Validar materiaId de entrada (Regla 2 e integridad)
+        // Validar materiaId de entrada (Regla 2: una tarea solo existe para una materia válida)
         materiaId = getIntent().getIntExtra("materiaId", -1);
         materia = materiaDAO.buscar(materiaId);
         if (materia == null) {
@@ -83,6 +86,11 @@ public class TareasActivity extends AppCompatActivity implements TareaAdapter.Ac
         lista.setLayoutManager(new LinearLayoutManager(this));
         lista.setAdapter(adapter);
 
+        // Selector visual de fecha interactivo (DatePickerDialog con bloqueo de fechas pasadas)
+        etFechaEntrega.setFocusable(false);
+        etFechaEntrega.setClickable(true);
+        etFechaEntrega.setOnClickListener(v -> abrirSelectorFecha());
+
         btnGuardarTarea.setOnClickListener(v -> guardar());
 
         // Búsqueda en tiempo real por título (Actividad 4)
@@ -100,31 +108,95 @@ public class TareasActivity extends AppCompatActivity implements TareaAdapter.Ac
         refrescar();
     }
 
+    private void abrirSelectorFecha() {
+        Calendar calendario = Calendar.getInstance();
+
+        // Si ya hay una fecha escrita válida, inicializar el selector en esa fecha
+        String textoActual = etFechaEntrega.getText().toString().trim();
+        SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        if (!textoActual.isEmpty()) {
+            try {
+                Date parsed = formato.parse(textoActual);
+                if (parsed != null) {
+                    calendario.setTime(parsed);
+                }
+            } catch (ParseException ignored) {}
+        }
+
+        int anio = calendario.get(Calendar.YEAR);
+        int mes = calendario.get(Calendar.MONTH);
+        int dia = calendario.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog picker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            String fechaSeleccionada = String.format(Locale.US, "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+            etFechaEntrega.setText(fechaSeleccionada);
+            etFechaEntrega.setError(null);
+        }, anio, mes, dia);
+
+        // Bloqueo de fechas pasadas en el propio selector de calendario
+        picker.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        picker.show();
+    }
+
     private void guardar() {
         String titulo = etTitulo.getText().toString().trim();
         String fecha = etFechaEntrega.getText().toString().trim();
         String prioridad = spPrioridad.getSelectedItem().toString();
 
-        // Regla 1: El título es obligatorio
+        // 1. Regla 1: El título es obligatorio y debe tener al menos 3 caracteres
         if (titulo.isEmpty()) {
-            etTitulo.setError("El título es obligatorio");
+            etTitulo.setError("El título de la tarea es obligatorio");
+            etTitulo.requestFocus();
+            return;
+        }
+        if (titulo.length() < 3) {
+            etTitulo.setError("El título debe tener al menos 3 caracteres");
+            etTitulo.requestFocus();
             return;
         }
 
-        // Regla 4: Fecha de entrega válida con formato aaaa-mm-dd
-        if (!fechaValida(fecha)) {
-            etFechaEntrega.setError("Fecha inválida. Use formato aaaa-mm-dd real (ej. 2026-10-20)");
+        // 2. Validación de fecha obligatoria
+        if (fecha.isEmpty()) {
+            etFechaEntrega.setError("La fecha de entrega es obligatoria");
+            etFechaEntrega.requestFocus();
             return;
+        }
+
+        // 3. Regla 4: Formato estricto y fecha real de calendario
+        if (!fechaValida(fecha)) {
+            etFechaEntrega.setError("Fecha inválida. Use formato aaaa-mm-dd (ej. 2026-10-25)");
+            etFechaEntrega.requestFocus();
+            return;
+        }
+
+        // 4. Validación: NO permitir crear o actualizar con fecha pasada
+        if (esFechaPasada(fecha)) {
+            etFechaEntrega.setError("La fecha de entrega no puede ser anterior a la fecha de hoy");
+            etFechaEntrega.requestFocus();
+            return;
+        }
+
+        // 5. Validación de tareas duplicadas en la misma materia
+        for (Tarea t : tareaDAO.listarPorMateria(materiaId)) {
+            if (t.getTitulo().equalsIgnoreCase(titulo)) {
+                if (enEdicion == null || t.getId() != enEdicion.getId()) {
+                    etTitulo.setError("Ya existe una tarea con este título en la materia");
+                    etTitulo.requestFocus();
+                    return;
+                }
+            }
         }
 
         if (enEdicion == null) {
             Tarea nueva = new Tarea(0, materiaId, titulo, fecha, false, prioridad);
             tareaDAO.insertar(nueva);
+            Toast.makeText(this, "Tarea agregada con éxito", Toast.LENGTH_SHORT).show();
         } else {
             enEdicion.setTitulo(titulo);
             enEdicion.setFechaEntrega(fecha);
             enEdicion.setPrioridad(prioridad);
             tareaDAO.actualizar(enEdicion);
+            Toast.makeText(this, "Tarea actualizada con éxito", Toast.LENGTH_SHORT).show();
         }
 
         limpiarFormulario();
@@ -135,6 +207,8 @@ public class TareasActivity extends AppCompatActivity implements TareaAdapter.Ac
         enEdicion = null;
         etTitulo.setText("");
         etFechaEntrega.setText("");
+        etTitulo.setError(null);
+        etFechaEntrega.setError(null);
         spPrioridad.setSelection(1);
         btnGuardarTarea.setText("Agregar tarea");
     }
@@ -148,10 +222,10 @@ public class TareasActivity extends AppCompatActivity implements TareaAdapter.Ac
             tareas = tareaDAO.listarPorMateria(materiaId);
         }
 
-        // Ordenar por fecha de entrega (Paso 7)
+        // Ordenar cronológicamente por fecha de entrega
         Collections.sort(tareas, (a, b) -> a.getFechaEntrega().compareTo(b.getFechaEntrega()));
 
-        // Encabezado: "X de Y completadas"
+        // Encabezado dinámico: "X de Y completadas"
         List<Tarea> todasDeMateria = tareaDAO.listarPorMateria(materiaId);
         int total = todasDeMateria.size();
         int completadas = 0;
@@ -179,11 +253,33 @@ public class TareasActivity extends AppCompatActivity implements TareaAdapter.Ac
         }
     }
 
+    private boolean esFechaPasada(String texto) {
+        SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        formato.setLenient(false);
+        try {
+            Date fechaEntrega = formato.parse(texto.trim());
+            if (fechaEntrega == null) return true;
+
+            // Medianoche de hoy (00:00:00.000)
+            Calendar hoy = Calendar.getInstance();
+            hoy.set(Calendar.HOUR_OF_DAY, 0);
+            hoy.set(Calendar.MINUTE, 0);
+            hoy.set(Calendar.SECOND, 0);
+            hoy.set(Calendar.MILLISECOND, 0);
+
+            return fechaEntrega.before(hoy.getTime());
+        } catch (ParseException ex) {
+            return true;
+        }
+    }
+
     @Override
     public void editar(Tarea tarea) {
         enEdicion = tarea;
         etTitulo.setText(tarea.getTitulo());
         etFechaEntrega.setText(tarea.getFechaEntrega());
+        etTitulo.setError(null);
+        etFechaEntrega.setError(null);
 
         // Seleccionar la prioridad en el Spinner
         for (int i = 0; i < opcionesPrioridad.length; i++) {
@@ -201,6 +297,7 @@ public class TareasActivity extends AppCompatActivity implements TareaAdapter.Ac
         if (enEdicion != null && enEdicion.getId() == tarea.getId()) {
             limpiarFormulario();
         }
+        Toast.makeText(this, "Tarea eliminada", Toast.LENGTH_SHORT).show();
         refrescar();
     }
 
