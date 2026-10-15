@@ -9,3 +9,11 @@ app/build/
 .externalNativeBuild
 .cxx
 local.properties
+
+# Java / Maven build artifacts (dao-json)
+target/
+bin/
+*.class
+.project
+.classpath
+.settings/

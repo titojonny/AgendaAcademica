@@ -1,42 +1,64 @@
 # INFORME TÉCNICO Y MEMORIA DE ENTREGA
-## Guía Práctica: Patrón DAO con Archivo JSON en Aplicación Móvil
+## Guía Práctica Integrada: Patrón DAO con Archivo JSON
+### De la Consola a una Aplicación Móvil Android
 
 **Institución:** Universidad Francisco Gavidia (UFG)  
 **Facultad:** Facultad de Ingeniería y Sistemas  
 **Asignatura:** Desarrollo de Aplicaciones Multiplataforma (DAP)  
-**Proyecto:** Agenda Académica Móvil  
+**Repositorio GitHub:** [https://github.com/titojonny/AgendaAcademica](https://github.com/titojonny/AgendaAcademica)  
 **Equipo de Desarrollo:**
 - **Jonathan Adonay Alas Girón** (Rol A - Modelo y Contrato)
 - **Mauro José Alfaro Amaya** (Rol B - Persistencia JSON y Pruebas)
 - **Lenny Adrián Elías Sánchez** (Rol C - Interfaz Móvil y Vistas)
-**Lenguaje y Plataforma:** Java / Android Studio (minSdk 24, compileSdk 34)
+**Plataformas:** Java 17+ con Maven (Parte I) y Android Studio Java (Parte II, minSdk 24, compileSdk 34)
 
 ---
 
 ## 1. Resumen Ejecutivo y Alcance
 
-El presente documento recopila la verificación técnica, diseño arquitectónico, cumplimiento de requisitos y resolución de actividades de la **Guía Práctica: Patrón DAO con archivo JSON en una aplicación móvil**.
+El presente documento recopila la verificación técnica, diseño arquitectónico, cumplimiento de requisitos y resolución de actividades de la **Guía Práctica Integrada: Patrón DAO con archivos JSON, de la consola a una aplicación móvil**.
 
-El objetivo principal fue desarrollar una aplicación móvil con persistencia desacoplada utilizando el patrón de diseño **Data Access Object (DAO)**. Los datos se almacenan en formato JSON estructurado en el almacenamiento interno privado de la aplicación (`/data/data/sv.edu.ufg.agenda/files/datos/`). A través de una clase base genérica (`JsonDAOBase<T>`), una fábrica centralizada (`DAOFactory`) y contratos basados en interfaces Java, se logró una independencia total entre la capa de interfaz de usuario y la persistencia de datos.
+La práctica unifica dos fases complementarias:
+1. **Parte I (Consola Java - Subcarpeta `dao-json/`):** Construcción del patrón DAO con Maven y Gson para persistir datos en archivos `.json` en disco local (`datos/estudiantes.json` y `datos/cursos.json`), generalización mediante `JsonDAOBase<T>` y centralización en `DAOFactory`.
+2. **Parte II (Móvil Android - Módulo `app/`):** Traslado del mismo patrón y contratos a una app táctil Android con entidades relacionadas (`Materia` y `Tarea`), persistiendo en el almacenamiento interno privado (`/data/data/sv.edu.ufg.agenda/files/datos/`) con ciclo de vida en `AgendaApp`.
 
 ---
 
 ## 2. Matriz de Cumplimiento de Requisitos de la Guía
 
-A continuación se detalla la verificación punto por punto contra las especificaciones de la guía:
+### A. Parte I: Consola Java (Pasos 1 al 6 y Actividades Pág. 24-25)
 
-| Sección / Paso | Requisito de la Guía | Estado | Evidencia en el Código |
+| Paso / Actividad | Requisito de la Guía | Estado | Evidencia en el Código |
 | :--- | :--- | :---: | :--- |
-| **Paso 1** | Dependencias Gson y RecyclerView, paquete `sv.edu.ufg.agenda`, minSdk 24 | **Cumplido** | [app/build.gradle](file:///c:/Users/adona/Downloads/AgendaAcademica/app/build.gradle) |
-| **Paso 2** | Interfaz `Entidad` y modelos `Materia`, `Tarea` con constructores vacíos y getters/setters | **Cumplido** | [Entidad.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/modelo/Entidad.java), [Materia.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/modelo/Materia.java), [Tarea.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/modelo/Tarea.java) |
-| **Paso 2** | Interfaces del contrato `DAO<T>`, `MateriaDAO`, `TareaDAO` | **Cumplido** | [DAO.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/DAO.java), [MateriaDAO.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/MateriaDAO.java), [TareaDAO.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/TareaDAO.java) |
-| **Paso 3** | Clase genérica `JsonDAOBase<T>` que centraliza CRUD, lectura/escritura JSON y autoincremento | **Cumplido** | [JsonDAOBase.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/JsonDAOBase.java) |
-| **Paso 4** | Implementaciones `MateriaDAOJson` y `TareaDAOJson` | **Cumplido** | [MateriaDAOJson.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/MateriaDAOJson.java), [TareaDAOJson.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/TareaDAOJson.java) |
-| **Paso 5** | `DAOFactory` y registro de `AgendaApp` en `AndroidManifest.xml` | **Cumplido** | [DAOFactory.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/DAOFactory.java), [AgendaApp.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/AgendaApp.java), [AndroidManifest.xml](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/AndroidManifest.xml) |
-| **Paso 6** | `MateriasActivity`, `MateriaAdapter`, layouts `activity_materias.xml` y `item_materia.xml` | **Cumplido** | [MateriasActivity.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/ui/MateriasActivity.java), [MateriaAdapter.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/ui/MateriaAdapter.java) |
-| **Paso 7** | `TareasActivity`, `TareaAdapter`, encabezado "X de Y", ordenación por fecha y validaciones | **Cumplido** | [TareasActivity.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/ui/TareasActivity.java), [TareaAdapter.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/ui/TareaAdapter.java) |
-| **Paso 8** | Persistencia interna en `/data/data/sv.edu.ufg.agenda/files/datos/` | **Cumplido** | [materias.json](file:///c:/Users/adona/Downloads/AgendaAcademica/docs/img/captura_device_explorer_materias.png) y [tareas.json](file:///c:/Users/adona/Downloads/AgendaAcademica/docs/img/captura_device_explorer_tareas.png) |
-| **Paso 9** | Integración del equipo y desacoplamiento verificado (UI no importa clases DAOJson) | **Cumplido** | Cero importaciones de clases concretas en el paquete `ui` |
+| **Paso 1** | Proyecto Maven con dependencia Gson 2.11.0 y Java 17 | **Cumplido** | [dao-json/pom.xml](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/pom.xml) |
+| **Paso 2** | Entidad `Estudiante` con constructores, getters, setters y `toString()` | **Cumplido** | [Estudiante.java](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/src/main/java/sv/edu/ufg/dao/modelo/Estudiante.java) |
+| **Paso 3** | Interfaz del contrato `EstudianteDAO` (CRUD completo y desacoplado) | **Cumplido** | [EstudianteDAO.java](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/src/main/java/sv/edu/ufg/dao/dao/EstudianteDAO.java) |
+| **Paso 4** | Implementación `EstudianteDAOJson` con carga, guardado y autoincremento | **Cumplido** | [EstudianteDAOJson.java](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/src/main/java/sv/edu/ufg/dao/dao/EstudianteDAOJson.java) |
+| **Paso 5** | Cliente `Main` que consume exclusivamente la interfaz `EstudianteDAO` | **Cumplido** | [Main.java](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/src/main/java/sv/edu/ufg/dao/Main.java) |
+| **Paso 6** | Verificación de persistencia en `datos/estudiantes.json` | **Cumplido** | [estudiantes.json](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/datos/estudiantes.json) |
+| **Actividad 1** | Ampliar entidad con atributo `correo` en `Estudiante` | **Cumplido** | Campo `correo` registrado y serializado en `Estudiante.java` |
+| **Actividad 2** | Nuevo método `buscarPorCarrera(String carrera)` en contrato e implementación | **Cumplido** | Declarado en `EstudianteDAO.java` e implementado con filtros case-insensitive |
+| **Actividad 3** | Menú interactivo por consola (opciones 1-5 y 0 salir) que usa solo la interfaz | **Cumplido** | Modo `--menu` en `Main.java` con menús completos para todas las operaciones |
+| **Actividad 4** | Segunda entidad `Curso` con su `CursoDAO` y `CursoDAOJson` | **Cumplido** | [Curso.java](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/src/main/java/sv/edu/ufg/dao/modelo/Curso.java), [CursoDAO.java](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/src/main/java/sv/edu/ufg/dao/dao/CursoDAO.java), [CursoDAOJson.java](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/src/main/java/sv/edu/ufg/dao/dao/CursoDAOJson.java) |
+| **Reto Pág. 25** | Eliminar código repetido entre DAOs creando `JsonDAOBase<T>` genérico | **Cumplido** | [JsonDAOBase.java](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/src/main/java/sv/edu/ufg/dao/dao/JsonDAOBase.java) en consola |
+| **Sugerencia P.24** | Centralizar creación en `DAOFactory` para consola | **Cumplido** | [DAOFactory.java](file:///c:/Users/adona/Downloads/AgendaAcademica/dao-json/src/main/java/sv/edu/ufg/dao/dao/DAOFactory.java) |
+
+---
+
+### B. Parte II: Aplicación Móvil Android (Pasos 7 al 15 y Actividades Pág. 25)
+
+| Paso / Actividad | Requisito de la Guía | Estado | Evidencia en el Código |
+| :--- | :--- | :---: | :--- |
+| **Paso 7** | Dependencias Gson y RecyclerView, paquete `sv.edu.ufg.agenda`, minSdk 24 | **Cumplido** | [app/build.gradle](file:///c:/Users/adona/Downloads/AgendaAcademica/app/build.gradle) |
+| **Paso 8** | Interfaz `Entidad` y modelos `Materia`, `Tarea` con constructores vacíos | **Cumplido** | [Entidad.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/modelo/Entidad.java), [Materia.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/modelo/Materia.java), [Tarea.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/modelo/Tarea.java) |
+| **Paso 8** | Interfaces del contrato `DAO<T>`, `MateriaDAO`, `TareaDAO` | **Cumplido** | [DAO.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/DAO.java), [MateriaDAO.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/MateriaDAO.java), [TareaDAO.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/TareaDAO.java) |
+| **Paso 9** | Clase genérica `JsonDAOBase<T>` que centraliza CRUD y streams en Android | **Cumplido** | [JsonDAOBase.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/JsonDAOBase.java) |
+| **Paso 10** | Implementaciones `MateriaDAOJson` y `TareaDAOJson` | **Cumplido** | [MateriaDAOJson.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/MateriaDAOJson.java), [TareaDAOJson.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/TareaDAOJson.java) |
+| **Paso 11** | `DAOFactory` y registro de `AgendaApp` en `AndroidManifest.xml` | **Cumplido** | [DAOFactory.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/DAOFactory.java), [AgendaApp.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/AgendaApp.java), [AndroidManifest.xml](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/AndroidManifest.xml) |
+| **Paso 12** | `MateriasActivity`, `MateriaAdapter`, layouts `activity_materias.xml` y `item_materia.xml` | **Cumplido** | [MateriasActivity.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/ui/MateriasActivity.java), [MateriaAdapter.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/ui/MateriaAdapter.java) |
+| **Paso 13** | `TareasActivity`, `TareaAdapter`, encabezado "X de Y", ordenación por fecha y validaciones | **Cumplido** | [TareasActivity.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/ui/TareasActivity.java), [TareaAdapter.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/ui/TareaAdapter.java) |
+| **Paso 14** | Persistencia interna en `/data/data/sv.edu.ufg.agenda/files/datos/` | **Cumplido** | [materias.json](file:///c:/Users/adona/Downloads/AgendaAcademica/docs/img/captura_device_explorer_materias.png) y [tareas.json](file:///c:/Users/adona/Downloads/AgendaAcademica/docs/img/captura_device_explorer_tareas.png) |
+| **Paso 15** | Integración del equipo y desacoplamiento verificado (UI no importa clases DAOJson) | **Cumplido** | Cero importaciones de clases concretas en el paquete `ui` |
 
 ### Evidencias Gráficas Incorporadas
 - [Captura Device Explorer - Materias](file:///c:/Users/adona/Downloads/AgendaAcademica/docs/img/captura_device_explorer_materias.png) (Actividad 1)
@@ -64,86 +86,36 @@ A continuación se detalla la verificación punto por punto contra las especific
 
 ---
 
-## 4. Resolución Detallada de las Actividades para el Estudiante (Paso 10)
+## 4. Resolución Detallada de las Actividades para el Estudiante
 
-### Actividad 1: Reproducir (Equipo)
-- Se configuró la estructura base según los Pasos 1 al 6. Los DAOs leen y escriben en la carpeta `datos` del almacenamiento interno (`getFilesDir()`).
-- Al agregar una materia, el archivo `materias.json` se crea con formato legible y sangrado (*pretty-printing*).
+### Actividades Parte I (Consola)
+- **Ampliar entidad Estudiante con correo:** Atributo agregado, constructores sobrecargados y persistencia en `datos/estudiantes.json`.
+- **Nuevo método buscarPorCarrera:** Filtrado dinámico en memoria de la lista deserializada.
+- **Menú por consola:** Doble ejecución en `Main.java` (modo automático y modo interactivo con `--menu`).
+- **Segunda entidad Curso:** Atributos `id`, `codigo`, `nombre`, `uv`, con su `CursoDAO` y `CursoDAOJson`.
+- **Reto `JsonDAOBase<T>`:** Centraliza `cargar()`, `guardar()`, `siguienteId()` y el CRUD completo para `Estudiante` y `Curso`, eliminando la duplicación de código en un 100%.
 
-### Actividad 2: Completar Pantalla de Tareas (Equipo)
-- Se desarrolló `TareasActivity` con:
-  - Formulario completo para agregar y editar tareas.
-  - Lista de tareas con RecyclerView filtradas por `materiaId` y ordenadas cronológicamente por `fechaEntrega`.
-  - Encabezado con contador dinámico `X de Y completadas`.
-  - CheckBox en cada fila que permite alternar el estado completada/pendiente con actualización inmediata en `tareas.json` y efecto tachado en el título.
-
-### Actividad 3: Ampliar la Entidad Tarea con Prioridad (Rol A)
-- **Modificación en el Modelo:** Se incorporó el atributo `private String prioridad;` ("Alta", "Media", "Baja") en `Tarea.java`. Se incluyó constructor con valor predeterminado `"Media"` y sus respectivos getters y setters.
-- **Interfaz Gráfica:** Se añadió un componente `Spinner` en `activity_tareas.xml` cargado con los valores `Alta`, `Media` y `Baja`.
-- **Persistencia:** Al guardarse o serializarse con Gson, el campo `prioridad` queda automáticamente registrado en `tareas.json`.
-
-### Actividad 4: Búsqueda en Tiempo Real (Rol C con apoyo de Rol B)
-- **Contratos:**
-  - `MateriaDAO.java` declara `List<Materia> buscarPorNombre(String texto);`.
-  - `TareaDAO.java` declara `List<Tarea> buscarPorTitulo(String texto);` y `List<Tarea> buscarPorTitulo(int materiaId, String texto);`.
-- **Implementación DAO:** Ambas clases (`MateriaDAOJson` y `TareaDAOJson`) recorren los elementos filtrando con `toLowerCase().contains(texto.toLowerCase())`.
-- **Experiencia de Usuario (UI):** En lugar de requerir pulsar un botón, se vincularon componentes `EditText` con listeners `TextWatcher`. La lista se filtra en tiempo real conforme el usuario teclea.
-
-### Actividad 5: Resumen por Materia (Tareas Pendientes)
-- **Requisito:** Mostrar bajo el nombre de cada materia cuántas tareas pendientes posee.
-- **Implementación:**
-  - En `MateriasActivity.java`, durante el método `refrescar()`, se construye un mapa `Map<Integer, Integer> mapaPendientes` calculando cuántas tareas tienen `!t.isCompletada()` para cada materia.
-  - En `item_materia.xml` y `MateriaAdapter.java`, se renderiza:
-    ```text
-    Programación II
-    Ing. Pérez
-    (2 tareas pendientes)
-    ```
-- **Justificación de Arquitectura (¿En qué capa va el cálculo?):**
-  - **Decisión:** El cálculo reside en la capa controladora de la vista (`MateriasActivity`), coordinando las consultas a `MateriaDAO` y `TareaDAO`.
-  - **Justificación:** Los modelos de dominio (`Materia`, `Tarea`) deben permanecer como objetos planos puros (POJO / DTO) sin acoplamiento a DAOs. Por su parte, `MateriaDAO` no debe tener dependencia directa de `TareaDAO` para no romper el principio de responsabilidad única (SRP). El controlador o ViewModel es el lugar idóneo para orquestar la agregación de datos para la vista.
-
-### Actividad 6: Reto - DAO en Memoria (Rol C)
-- Se crearon las clases [MateriaDAOMemoria.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/MateriaDAOMemoria.java) y [TareaDAOMemoria.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/TareaDAOMemoria.java) implementando los contratos `MateriaDAO` y `TareaDAO` utilizando un `ArrayList<T>` privado y un autoincremental de IDs.
-- En [DAOFactory.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/main/java/sv/edu/ufg/agenda/dao/DAOFactory.java) se definió:
-  ```java
-  boolean usarMemoria = false; // Alternar a true para modo memoria
-  if (usarMemoria) {
-      this.materiaDAO = new MateriaDAOMemoria();
-      this.tareaDAO = new TareaDAOMemoria();
-  } else {
-      this.materiaDAO = new MateriaDAOJson(new File(carpetaDatos, "materias.json"));
-      this.tareaDAO = new TareaDAOJson(new File(carpetaDatos, "tareas.json"));
-  }
-  ```
-- **¿En qué situaciones del trabajo en equipo sirve?**
-  1. Permite al integrante de interfaz móvil (Rol C) avanzar en el diseño y prueba de layouts sin esperar que el integrante de persistencia (Rol B) termine la lectura/escritura de archivos.
-  2. Facilita la ejecución de pruebas rápidas de interfaz (instrumentadas o manuales) en entornos sin permisos de almacenamiento o donde se desee un estado limpio en cada ejecución sin borrar archivos físicos.
-  3. Sirve como doble de prueba (*mock/stub*) en entornos de desarrollo ágil.
-
-### Actividad 7: Reto - Pruebas Unitarias JUnit (Rol B)
-- Se diseñaron dos suites de pruebas unitarias completas:
-  - [TareaDAOJsonTest.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/test/java/sv/edu/ufg/agenda/dao/TareaDAOJsonTest.java)
-  - [MateriaDAOJsonTest.java](file:///c:/Users/adona/Downloads/AgendaAcademica/app/src/test/java/sv/edu/ufg/agenda/dao/MateriaDAOJsonTest.java)
-- **Características de la prueba:**
-  - Hacen uso de la regla `@Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();`.
-  - Crean y limpian archivos temporales en el sistema de archivos del sistema operativo anfitrión.
-  - Ejecutan las operaciones `insertar`, `buscar`, `buscarPorNombre`, `listarPorMateria`, `actualizar` y `eliminar`.
-  - Se ejecutan en la máquina virtual Java (JVM) estándar mediante `./gradlew test` en apenas 10 segundos, sin necesidad de emulador Android ni dispositivo físico.
+### Actividades Parte II (Móvil Android)
+- **Actividad 1 (Reproducir):** Estructura base funcionando en emulador con almacenamiento en `getFilesDir()/datos/materias.json`.
+- **Actividad 2 (Completar Tareas):** Pantalla `TareasActivity` con lista ordenada cronológicamente, contador dinámico "X de Y completadas" y CheckBox con tachado dinámico.
+- **Actividad 3 (Prioridad en Tarea):** Atributo `prioridad` ("Alta", "Media", "Baja") con `Spinner` en la interfaz y persistencia en `tareas.json`.
+- **Actividad 4 (Búsqueda en Tiempo Real):** `TextWatcher` en ambas pantallas para filtrado inmediato al escribir.
+- **Actividad 5 (Resumen por Materia):** Conteo de tareas pendientes renderizado en cada fila de materia, calculado en la capa controladora (`MateriasActivity`) sin violar la responsabilidad única de los modelos ni DAOs.
+- **Actividad 6 (Reto DAOs en Memoria):** Clases `MateriaDAOMemoria` y `TareaDAOMemoria` conmutables con una variable booleana en `DAOFactory`.
+- **Actividad 7 (Reto Pruebas Unitarias JUnit):** Suites de test `TareaDAOJsonTest` y `MateriaDAOJsonTest` con `@Rule public TemporaryFolder`, ejecutables en JVM local en segundos mediante `./gradlew test`.
 
 ---
 
-## 5. Respuesta a la Pregunta de Reflexión del Cierre (Sección 13)
+## 5. Respuesta a la Pregunta de Reflexión del Cierre (Pág. 27)
 
-> **Pregunta de la Guía:** *Si mañana la institución exige guardar los datos en SQLite, ¿cuántos archivos de la carpeta `ui` tendrías que modificar?*
->
-> **Respuesta:** **CERO (0) archivos.**
+> **Pregunta:** *Si mañana la institución exige guardar los datos en una base de datos (SQLite en Android o MySQL en consola), ¿cuántas clases tendrías que modificar en tu proyecto de consola y cuántos archivos de la carpeta ui en tu app móvil?*
+> 
+> **Respuesta:**
+> - En consola: **Una sola clase** (`DAOFactory.java`, cambiando la instanciación de los DAOs a la nueva implementación JDBC). El cliente `Main` permanece inalterado.
+> - En la app móvil: **Exactamente CERO (0) archivos de la carpeta `ui`**.
 > 
 > **Explicación técnica:**
-> Debido a que las clases `MateriasActivity`, `TareasActivity`, `MateriaAdapter` y `TareaAdapter` fueron programadas estrictamente contra las interfaces `MateriaDAO` y `TareaDAO`, desconocen por completo el mecanismo de persistencia subyacente. Para migrar a SQLite o Room, los únicos cambios necesarios serían:
-> 1. Crear las clases `MateriaDAOSqlite` y `TareaDAOSqlite` implementando `MateriaDAO` y `TareaDAO`.
-> 2. Cambiar la instanciación en `DAOFactory` para que entregue los DAOs de SQLite en lugar de los DAOs de JSON.
-> Ninguna línea de layout, adapter ni actividad sufriría modificaciones.
+> Las pantallas (`MateriasActivity`, `TareasActivity`, `MateriaAdapter`, `TareaAdapter`) y el cliente de consola fueron programados de forma 100% agnóstica contra las interfaces (`EstudianteDAO`, `CursoDAO`, `MateriaDAO`, `TareaDAO`). Para migrar a SQLite o Room solo se requiere programar `MateriaDAOSqlite` y `TareaDAOSqlite` y cambiar una línea en `DAOFactory`. La interfaz gráfica se mantiene completamente intacta.
 
 ---
 

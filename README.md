@@ -1,193 +1,185 @@
-# Agenda Académica Móvil - Patrón DAO con Persistencia JSON
+# Guía Práctica Integrada: Patrón DAO con Archivos JSON
+## De la Consola a una Aplicación Móvil Android
 
 **Universidad Francisco Gavidia (UFG)**  
 **Facultad de Ingeniería y Sistemas**  
 **Asignatura:** Desarrollo de Aplicaciones Multiplataforma (DAP)  
-**Repositorio GitHub:** [https://github.com/titojonny/AgendaAcademica](https://github.com/titojonny/AgendaAcademica)  
+**Repositorio Oficial:** [https://github.com/titojonny/AgendaAcademica](https://github.com/titojonny/AgendaAcademica)  
 **Equipo de Desarrollo:**
 - **Jonathan Adonay Alas Girón** (Rol A - Modelo y Contrato)
 - **Mauro José Alfaro Amaya** (Rol B - Persistencia JSON y Pruebas)
 - **Lenny Adrián Elías Sánchez** (Rol C - Interfaz Móvil y Vistas)
-**Plataforma:** Android con Java (minSdk 24, compileSdk/targetSdk 34)
 
 ---
 
-## 📌 1. Descripción del Proyecto
+## 📌 1. Visión General de la Práctica Integrada
 
-Aplicación móvil Android para la gestión de materias y tareas académicas de estudiantes, implementando el patrón de diseño **Data Access Object (DAO)** desacoplado con persistencia en archivos **JSON** ubicados en el almacenamiento interno del dispositivo (`/data/data/sv.edu.ufg.agenda/files/datos/`).
+Este repositorio unifica en una sola solución arquitectónica las **dos partes de la guía práctica**:
 
-El sistema respeta una arquitectura multicapa estricta donde las actividades de la interfaz de usuario (`Activity`) interactúan exclusivamente a través de contratos (interfaces Java), sin conocer jamás si los datos provienen de archivos JSON, de memoria RAM o de una base de datos SQLite/Room.
+1. **Parte I (Consola Java Maven - Carpeta `dao-json/`):**
+   - Implementación del patrón **Data Access Object (DAO)** en Java puro con Maven y Google Gson.
+   - Entidades `Estudiante` y `Curso`, persistiendo en `datos/estudiantes.json` y `datos/cursos.json`.
+   - Generalización mediante la clase base abstracta `JsonDAOBase<T>` y la fábrica `DAOFactory`.
+   - Doble modo de uso: demostración por lotes y menú interactivo por consola.
+
+2. **Parte II (Aplicación Móvil Android - Módulo `app/`):**
+   - Extensión del patrón DAO a una aplicación táctil con dos entidades relacionadas: `Materia` y `Tarea` (1:N).
+   - Persistencia en el almacenamiento interno privado del dispositivo (`/data/data/sv.edu.ufg.agenda/files/datos/`).
+   - Pantallas `MateriasActivity` y `TareasActivity` con RecyclerView, filtros en tiempo real, prioridad de tareas y validación estricta de 4 reglas de negocio.
+   - Retos resueltos: DAOs alternativos en memoria (`MateriaDAOMemoria`, `TareaDAOMemoria`) y pruebas unitarias automáticas JUnit con `TemporaryFolder`.
 
 ---
 
-## 🏛️ 2. Arquitectura y Patrones de Diseño
+## 🏛️ 2. Arquitectura del Patrón DAO en Ambos Entornos
 
 ```text
-Capa UI (Pantallas)                Contratos (Interfaces)             Implementaciones de Datos
--------------------                ----------------------             --------------------------
-MateriasActivity --------+------>  MateriaDAO (extends DAO<Materia>) -> MateriaDAOJson (hereda de JsonDAOBase<T>)
-                         |                                           -> MateriaDAOMemoria (Actividad 6)
-                         |
-TareasActivity   --------+------>  TareaDAO (extends DAO<Tarea>)     -> TareaDAOJson (hereda de JsonDAOBase<T>)
-                         |                                           -> TareaDAOMemoria (Actividad 6)
-                         |
-                   DAOFactory (creado en AgendaApp)
-```
+==================================================================================================
+                                    PARTE I: CONSOLA JAVA (dao-json)
+==================================================================================================
+Cliente: Main.java (o Menú) ----> DAOFactory.estudiantes() / cursos()
+                                           |
+                                           v
+            +------------------------------+------------------------------+
+            | Contratos (Interfaces)                                      |
+            |   DAO<T>  <---  EstudianteDAO / CursoDAO                    |
+            +------------------------------+------------------------------+
+                                           |
+                                           v
+            +-------------------------------------------------------------+
+            | Base Genérica: JsonDAOBase<T extends Entidad>               |
+            |   (cargar, guardar, siguienteId, CRUD con Gson y Java NIO)  |
+            +------------------------------+------------------------------+
+                                           |
+                                           v
+                                EstudianteDAOJson / CursoDAOJson
+                                           |
+                                           v
+                            datos/estudiantes.json | datos/cursos.json
 
-### Principios Clave:
-1. **Desacoplamiento Absoluto:** Ninguna Activity, Adapter ni clase de UI importa `MateriaDAOJson`, `TareaDAOJson` ni clases de entrada/salida (`java.io.*` o Gson).
-2. **Reutilización Genérica (`JsonDAOBase<T>`):** Las operaciones comunes de lectura, escritura con Gson pretty-printing, serialización UTF-8 y autoincremento de IDs se programan una sola vez.
-3. **Fábrica Centralizada (`DAOFactory`):** Único punto del sistema donde se decide qué implementación concreta de DAO se entrega a las pantallas.
-4. **Ciclo de Vida Limpio (`AgendaApp`):** Instanciada en la clase `Application` de Android para mantener viva la fábrica y evitar recreaciones innecesarias.
+==================================================================================================
+                                    PARTE II: ANDROID MÓVIL (app)
+==================================================================================================
+Vistas / UI: MateriasActivity / TareasActivity
+      |
+      +---> AgendaApp.daos() ---> DAOFactory (centralizado)
+                                           |
+                                           v
+            +------------------------------+------------------------------+
+            | Contratos (Interfaces)                                      |
+            |   DAO<T>  <---  MateriaDAO / TareaDAO                       |
+            +------------------------------+------------------------------+
+                                           |
+                  +------------------------+------------------------+
+                  |                                                 |
+                  v                                                 v
+    JsonDAOBase<T> (con java.io)                        DAOs en Memoria (Actividad 6)
+                  |                                                 |
+                  v                                                 v
+     MateriaDAOJson / TareaDAOJson                   MateriaDAOMemoria / TareaDAOMemoria
+                  |
+                  v
+/data/data/sv.edu.ufg.agenda/files/datos/ (materias.json / tareas.json)
+```
 
 ---
 
-## 📂 3. Estructura del Código Fuente
+## 📂 3. Estructura Unificada del Proyecto
 
 ```text
 AgendaAcademica/
-├── app/
-│   ├── build.gradle
+├── dao-json/                               # PARTE I: PROYECTO CONSOLA MAVEN
+│   ├── pom.xml                             # Dependencias Gson 2.11.0, Java 17
+│   ├── datos/
+│   │   ├── estudiantes.json                # Persistencia de estudiantes
+│   │   └── cursos.json                     # Persistencia de cursos (Actividad Pág. 24)
+│   └── src/main/java/sv/edu/ufg/dao/
+│       ├── Main.java                       # Cliente consola con demo y menú interactivo
+│       ├── modelo/
+│       │   ├── Entidad.java                # Interfaz base con getId() y setId()
+│       │   ├── Estudiante.java             # Entidad Estudiante con correo
+│       │   └── Curso.java                  # Segunda entidad Curso con UV
+│       └── dao/
+│           ├── DAO.java                    # Contrato genérico CRUD
+│           ├── EstudianteDAO.java          # Contrato Estudiante (buscarPorCarrera)
+│           ├── CursoDAO.java               # Contrato Curso (buscarPorNombre)
+│           ├── JsonDAOBase.java            # Reto: Base genérica abstracta
+│           ├── EstudianteDAOJson.java      # Implementación JSON para estudiantes
+│           ├── CursoDAOJson.java           # Implementación JSON para cursos
+│           └── DAOFactory.java             # Fábrica de DAOs en consola
+│
+├── app/                                    # PARTE II: APLICACIÓN MÓVIL ANDROID
+│   ├── build.gradle                        # Gson 2.11.0, RecyclerView 1.3.2, minSdk 24
 │   └── src/
 │       ├── main/
-│       │   ├── AndroidManifest.xml
+│       │   ├── AndroidManifest.xml         # Registro de AgendaApp y Activities
 │       │   ├── java/sv/edu/ufg/agenda/
-│       │   │   ├── AgendaApp.java          # Configura e inicializa DAOFactory en getFilesDir()/datos
-│       │   │   ├── modelo/                 # Paquete de modelos y contratos de entidad
-│       │   │   │   ├── Entidad.java        # Interfaz base con getId() y setId(int id)
-│       │   │   │   ├── Materia.java        # Atributos: id, nombre, docente
-│       │   │   │   └── Tarea.java          # Atributos: id, materiaId, titulo, fechaEntrega, completada, prioridad
-│       │   │   ├── dao/                    # Paquete de acceso a datos y contratos
-│       │   │   │   ├── DAO.java            # Contrato genérico con CRUD básico
-│       │   │   │   ├── MateriaDAO.java     # Contrato extendido con buscarPorNombre(String)
-│       │   │   │   ├── TareaDAO.java       # Contrato con listarPorMateria(int) y buscarPorTitulo(...)
-│       │   │   │   ├── JsonDAOBase.java    # Clase base abstracta genérica para persistencia JSON
-│       │   │   │   ├── MateriaDAOJson.java # Persistencia JSON para materias
-│       │   │   │   ├── TareaDAOJson.java   # Persistencia JSON para tareas
-│       │   │   │   ├── MateriaDAOMemoria.java # Implementación alternativa en memoria (Actividad 6)
-│       │   │   │   ├── TareaDAOMemoria.java   # Implementación alternativa en memoria (Actividad 6)
-│       │   │   │   └── DAOFactory.java     # Fábrica abstracta de DAOs (JSON / Memoria)
-│       │   │   └── ui/                     # Capa de presentación (Vistas y Controladores)
-│       │   │       ├── MateriasActivity.java # CRUD de materias, buscador y resumen de pendientes
-│       │   │       ├── MateriaAdapter.java   # RecyclerView Adapter para materias
-│       │   │       ├── TareasActivity.java   # CRUD de tareas, validación de fechas, prioridad y buscador
-│       │   │       └── TareaAdapter.java     # RecyclerView Adapter con CheckBox y tachado dinámico
-│       │   └── res/
-│       │       └── layout/
-│       │           ├── activity_materias.xml # Formulario superior + buscador + RecyclerView
-│       │           ├── item_materia.xml      # Fila con información, botón Tareas y botón Eliminar
-│       │           ├── activity_tareas.xml   # Encabezado "X de Y", selector prioridad y formulario
-│       │           └── item_tarea.xml        # Fila con CheckBox, títulos, detalle y acciones
-│       └── test/java/sv/edu/ufg/agenda/dao/
-│           ├── MateriaDAOJsonTest.java       # Pruebas unitarias JUnit con TemporaryFolder
-│           └── TareaDAOJsonTest.java         # Pruebas unitarias JUnit con TemporaryFolder
+│       │   │   ├── AgendaApp.java          # Application con ciclo de vida de DAOFactory
+│       │   │   ├── modelo/                 # Entidad, Materia, Tarea (con prioridad)
+│       │   │   ├── dao/                    # DAO<T>, MateriaDAO, TareaDAO, JsonDAOBase<T>,
+│       │   │   │                           # MateriaDAOJson, TareaDAOJson, DAOFactory,
+│       │   │   │                           # MateriaDAOMemoria, TareaDAOMemoria
+│       │   │   └── ui/                     # MateriasActivity, MateriaAdapter,
+│       │   │                               # TareasActivity, TareaAdapter
+│       │   └── res/layout/                 # activity_materias, item_materia,
+│       │                                   # activity_tareas, item_tarea
+│       └── test/java/sv/edu/ufg/agenda/dao/# Pruebas unitarias JUnit con TemporaryFolder
+│           ├── MateriaDAOJsonTest.java
+│           └── TareaDAOJsonTest.java
+│
+├── docs/                                   # Evidencias y documentación
+│   └── img/                                # Capturas de emulador y Device Explorer
+├── DOCUMENTACION_ENTREGA_GUIA_DAO.md       # Memoria técnica completa de la práctica
+└── INFORME_ENTREGA_UFG.html                # Informe oficial formateado para impresión PDF
 ```
 
 ---
 
-## 🛡️ 4. Reglas de Negocio Implementadas
+## 🚀 4. Guía de Ejecución
 
-1. **Regla 1:** El nombre de la materia y el título de la tarea son campos estrictamente obligatorios (validación con `setError()` en tiempo de ingreso).
-2. **Regla 2:** Una tarea solo se puede registrar para una materia existente (validación estricta de `materiaId` en `TareasActivity.onCreate()`; si no existe o es inválida, se finaliza con `finish()`).
-3. **Regla 3:** No se puede eliminar una materia que aún posea tareas asociadas (`MateriasActivity.eliminar()` consulta `tareaDAO.listarPorMateria(id)` y bloquea la eliminación mostrando un `Toast` de advertencia).
-4. **Regla 4:** La fecha de entrega debe ser una fecha válida en formato calendario estricto `aaaa-mm-dd` (validada con `SimpleDateFormat.setLenient(false)` impidiendo fechas inexistentes como `2026-02-30`).
+### A. Para ejecutar la Parte I (Consola Java):
+Navega a la carpeta `dao-json/`:
+```bash
+cd dao-json
+```
 
----
+**Modo Demostración Automática:**
+```bash
+mvn compile exec:java -Dexec.mainClass="sv.edu.ufg.dao.Main"
+```
 
-## 🎯 5. Cumplimiento de las 7 Actividades de la Guía
+**Modo Menú Interactivo por Consola:**
+```bash
+mvn compile exec:java -Dexec.mainClass="sv.edu.ufg.dao.Main" -Dexec.args="--menu"
+```
 
-| Actividad | Responsable | Descripción y Solución Implementada |
-| :--- | :--- | :--- |
-| **1. Reproducir** | Equipo | Proyecto Android configurado desde los Pasos 1 al 6 con dependencias `gson:2.11.0` y `recyclerview:1.3.2`. |
-| **2. Completar** | Equipo | Desarrollo íntegro de `TareasActivity`, `TareaAdapter`, `activity_tareas.xml` e `item_tarea.xml` con flujo CRUD completo. |
-| **3. Ampliar Entidad** | Rol A | Inclusión del atributo `prioridad` ("Alta", "Media", "Baja") en `Tarea.java`, visualización en UI con un `Spinner` de selección y persistencia automática en `tareas.json`. |
-| **4. Búsqueda** | Rol C y B | Búsqueda en tiempo real mediante `TextWatcher` en `MateriasActivity` (`buscarPorNombre`) y en `TareasActivity` (`buscarPorTitulo`). |
-| **5. Resumen por Materia** | Equipo | En la lista de materias se muestra el contador `"X tareas pendientes"`. El cálculo se realiza en la capa controladora (`MateriasActivity`) consultando los DAOs, manteniendo los modelos y vistas desacoplados. |
-| **6. Reto DAO en Memoria** | Rol C | Creación de `MateriaDAOMemoria` y `TareaDAOMemoria`. En `DAOFactory` basta cambiar la bandera booleana `boolean usarMemoria = false;` a `true` para conmutar sin tocar una sola línea de la UI. |
-| **7. Reto Pruebas Unitarias**| Rol B | Implementación de `TareaDAOJsonTest` y `MateriaDAOJsonTest` utilizando `@Rule public TemporaryFolder`, ejecutables en la JVM local sin requerir emulador Android. |
+### B. Para ejecutar la Parte II (Móvil Android):
+1. Abre la carpeta raíz `AgendaAcademica` en **Android Studio**.
+2. Presiona **Sync Project with Gradle Files**.
+3. Selecciona un emulador (minSdk 24+) o un teléfono con depuración USB y presiona **Run 'app'** (`Shift + F10`).
 
----
-
-## 🧪 6. Ejecución de Pruebas Unitarias
-
-Para ejecutar las pruebas automáticas en la consola o terminal:
-
+**Para ejecutar las pruebas unitarias JUnit (sin emulador):**
 ```bash
 ./gradlew test
 ```
 
-Salida esperada:
-```text
-BUILD SUCCESSFUL in 10s
-38 actionable tasks: 4 executed, 34 up-to-date
-```
+---
+
+## 🛡️ 5. Reglas de Negocio Validadas en la App Móvil
+
+1. **Regla 1:** El nombre de la materia y el título de la tarea son obligatorios (`setError`).
+2. **Regla 2:** Una tarea solo se puede registrar para una materia existente (si `materiaId` es inválido, cierra con `finish()`).
+3. **Regla 3:** No se puede eliminar una materia que posea tareas asociadas (se verifica con `tareaDAO.listarPorMateria()` y bloquea con `Toast`).
+4. **Regla 4:** Fecha de entrega obligatoria y calendario estricto `aaaa-mm-dd` (`SimpleDateFormat.setLenient(false)` rechaza días como `2026-02-30`).
 
 ---
 
-## 📱 7. Verificación en Device Explorer
+## 💡 6. Pregunta de Reflexión del Cierre (Pág. 27)
 
-Una vez ejecutada la aplicación en un emulador o dispositivo físico con depuración USB:
-1. En Android Studio, abra la herramienta lateral **Device Explorer** (`View > Tool Windows > Device Explorer`).
-2. Navegue a la ruta interna de la aplicación:
-   ```text
-   /data/data/sv.edu.ufg.agenda/files/datos/
-   ```
-3. Encontrará los archivos:
-   - `materias.json`
-   - `tareas.json`
-4. Haga clic derecho sobre la carpeta `datos` y seleccione **Synchronize** para actualizar los cambios en caliente.
-
-### Ejemplo de `materias.json`:
-```json
-[
-  {
-    "id": 1,
-    "nombre": "Programación II",
-    "docente": "Ing. Pérez"
-  },
-  {
-    "id": 2,
-    "nombre": "Bases de Datos",
-    "docente": "Lic. Gómez"
-  }
-]
-```
-
-### Ejemplo de `tareas.json`:
-```json
-[
-  {
-    "id": 1,
-    "materiaId": 1,
-    "titulo": "Guía práctica 3 - DAO JSON",
-    "fechaEntrega": "2026-10-20",
-    "completada": false,
-    "prioridad": "Alta"
-  },
-  {
-    "id": 2,
-    "materiaId": 1,
-    "titulo": "Investigación sobre Repositories",
-    "fechaEntrega": "2026-10-25",
-    "completada": true,
-    "prioridad": "Media"
-  },
-  {
-    "id": 3,
-    "materiaId": 2,
-    "titulo": "Diseño de Modelo Relacional",
-    "fechaEntrega": "2026-10-28",
-    "completada": false,
-    "prioridad": "Alta"
-  }
-]
-```
-
----
-
-## 💡 8. Pregunta de Reflexión del Cierre
-
-> **Pregunta:** *Si mañana la institución exige guardar los datos en SQLite, ¿cuántos archivos de la carpeta `ui` tendrías que modificar?*
+> **Pregunta:** *Si mañana la institución exige guardar los datos en una base de datos (SQLite en Android o MySQL con JDBC en consola), ¿cuántas clases tendrías que modificar en consola y cuántos archivos de la carpeta `ui` en la app móvil?*
 > 
-> **Respuesta:** **Exactamente CERO (ninguno)**.
-> Las pantallas (`MateriasActivity`, `TareasActivity`, `MateriaAdapter`, `TareaAdapter`) dependen única y exclusivamente de los contratos `MateriaDAO` y `TareaDAO`. Bastaría con crear `MateriaDAOSqlite` y `TareaDAOSqlite` (implementando dichas interfaces) y cambiar una sola línea en `DAOFactory`. La capa de presentación ni siquiera se enteraría del cambio de motor de persistencia.
+> **Respuesta:**
+> - En consola: **Una sola clase** (`DAOFactory.java`, cambiando la instanciación de los DAOs). El cliente `Main` permanece intacto.
+> - En la app móvil: **Exactamente CERO (0) archivos de la carpeta `ui`**.
+> 
+> **Justificación Técnica:**  
+> Las capas consumidoras (`Main` en consola y `MateriasActivity`, `TareasActivity`, adaptadores en Android) se programaron de forma 100% agnóstica contra las interfaces (`EstudianteDAO`, `CursoDAO`, `MateriaDAO`, `TareaDAO`). Cambiar el motor de persistencia a SQLite, Room o JDBC solo requiere nuevas clases implementando dichos contratos y actualizar la fábrica centralizada.

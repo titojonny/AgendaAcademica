@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "codigo": "DAP101",
+    "nombre": "Desarrollo de Aplicaciones Multiplataforma",
+    "uv": 4
+  },
+  {
+    "id": 2,
+    "codigo": "BD201",
+    "nombre": "Bases de Datos Avanzadas",
+    "uv": 5
+  }
+]
