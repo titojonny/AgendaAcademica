@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Informe de Entrega - Guía Práctica Patrón DAO JSON - UFG</title>
+  <title>Informe de Entrega - Guía Práctica Integrada Patrón DAO JSON - UFG</title>
   <style>
     @page {
       size: A4;
@@ -19,23 +19,23 @@
     }
     .cover {
       text-align: center;
-      padding: 30px 20px 15px 20px;
+      padding: 25px 20px 15px 20px;
       border-bottom: 3px solid #003366;
       margin-bottom: 25px;
       page-break-after: always;
     }
     .cover h1 {
       color: #003366;
-      font-size: 21pt;
+      font-size: 20pt;
       margin: 10px 0 5px 0;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .cover h2 {
       color: #555;
-      font-size: 13.5pt;
+      font-size: 13pt;
       font-weight: 500;
-      margin: 0 0 25px 0;
+      margin: 0 0 20px 0;
     }
     .cover .badge {
       display: inline-block;
@@ -46,15 +46,15 @@
       font-weight: 600;
       font-size: 10pt;
       text-transform: uppercase;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
     .meta-box {
-      margin: 25px auto;
-      max-width: 580px;
+      margin: 20px auto;
+      max-width: 600px;
       background: #f7f9fc;
       border: 1px solid #d0d7de;
       border-radius: 6px;
-      padding: 18px 24px;
+      padding: 16px 22px;
       text-align: left;
     }
     .meta-box table {
@@ -62,8 +62,8 @@
       border-collapse: collapse;
     }
     .meta-box td {
-      padding: 6px 8px;
-      font-size: 10.5pt;
+      padding: 5px 8px;
+      font-size: 10pt;
       vertical-align: top;
     }
     .meta-box td.label {
@@ -101,7 +101,7 @@
     }
     table.data-table th, table.data-table td {
       border: 1px solid #d0d7de;
-      padding: 7px 10px;
+      padding: 6px 9px;
     }
     table.data-table th {
       background-color: #003366;
@@ -117,7 +117,7 @@
       border-radius: 6px;
       background: #ffffff;
       padding: 12px;
-      margin: 14px 0;
+      margin: 12px 0;
       text-align: center;
       page-break-inside: avoid;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
@@ -135,7 +135,7 @@
     }
     .screenshot-img {
       max-width: 98%;
-      max-height: 380px;
+      max-height: 360px;
       height: auto;
       border: 1px solid #d0d7de;
       border-radius: 4px;
@@ -179,7 +179,10 @@
   <div class="cover">
     <div class="badge">Universidad Francisco Gavidia · Facultad de Ingeniería y Sistemas</div>
     <h1>Desarrollo de Aplicaciones Multiplataforma (DAP)</h1>
-    <h2>Informe de Práctica: Patrón DAO con Archivo JSON en una Aplicación Móvil</h2>
+    <h2>Guía Práctica Integrada: Patrón DAO con Archivos JSON</h2>
+    <p style="font-size: 11pt; color: #444; margin-top: -10px; font-weight: 600;">
+      De la Consola (Java 17+ / Maven) a una Aplicación Móvil (Android Java)
+    </p>
 
     <div class="meta-box">
       <table>
@@ -188,8 +191,8 @@
           <td>Desarrollo de Aplicaciones Multiplataforma</td>
         </tr>
         <tr>
-          <td class="label">Proyecto:</td>
-          <td>Agenda Académica Móvil (Android Java)</td>
+          <td class="label">Proyecto Integrado:</td>
+          <td>Agenda Académica &amp; Sistema de Consola DAO JSON</td>
         </tr>
         <tr>
           <td class="label">Integrantes del Equipo:</td>
@@ -203,11 +206,7 @@
         </tr>
         <tr>
           <td class="label">Repositorio GitHub:</td>
-          <td><a href="https://github.com/titojonny/AgendaAcademica" target="_blank" style="color: #003366; font-weight: 600; text-decoration: underline;">https://github.com/titojonny/AgendaAcademica</a> (Ramas: main, rol-a, rol-b, rol-c)</td>
-        </tr>
-        <tr>
-          <td class="label">Paquete Base:</td>
-          <td><code>sv.edu.ufg.agenda</code></td>
+          <td><a href="https://github.com/titojonny/AgendaAcademica" target="_blank" style="color: #003366; font-weight: 600; text-decoration: underline;">https://github.com/titojonny/AgendaAcademica</a> (Incluye <code>dao-json/</code> y <code>app/</code>)</td>
         </tr>
         <tr>
           <td class="label">Fecha de Entrega:</td>
@@ -215,7 +214,7 @@
         </tr>
         <tr>
           <td class="label">Resultado de Pruebas:</td>
-          <td><span class="badge-check">38 TAREAS GRADLE / BUILD SUCCESSFUL</span></td>
+          <td><span class="badge-check">BUILD SUCCESSFUL (JUnit &amp; Maven OK)</span></td>
         </tr>
       </table>
     </div>
@@ -225,81 +224,183 @@
     </p>
   </div>
 
-  <!-- SECCIÓN 1: INTRODUCCIÓN Y ARQUITECTURA -->
-  <h2 class="section-title">1. Resumen de la Solución Arquitectónica</h2>
+  <!-- SECCIÓN 1: INTRODUCCIÓN Y ARQUITECTURA GENERAL -->
+  <h2 class="section-title">1. Resumen de la Solución Arquitectónica Integrada</h2>
   <p>
-    En esta práctica se construyó la aplicación <strong>Agenda Académica</strong> aplicando el patrón de diseño 
-    <strong>Data Access Object (DAO)</strong> con almacenamiento en archivos JSON dentro de la memoria interna del dispositivo 
-    (<code>getFilesDir()/datos/</code>).
+    Esta entrega unifica las dos fases de la <strong>Guía Práctica Integrada</strong>:
+    primero la implementación del patrón <strong>Data Access Object (DAO)</strong> con persistencia en archivos JSON en un programa de consola (Parte I), 
+    y luego el escalamiento de ese mismo diseño arquitectónico a una aplicación móvil Android en equipo con entidades relacionadas (Parte II).
   </p>
   <p>
-    La arquitectura garantiza un desacoplamiento absoluto: las pantallas de usuario (<code>MateriasActivity</code> y <code>TareasActivity</code>) 
-    desconocen la existencia de JSON, archivos y streams. Toda interacción se realiza a través de las interfaces <code>MateriaDAO</code> y <code>TareaDAO</code>, 
-    provistas por una fábrica centralizada (<code>DAOFactory</code>) gestionada por el ciclo de vida de la clase <code>AgendaApp</code>.
+    La premisa fundamental del patrón se cumple en ambas plataformas: <strong>quien usa el DAO desconoce el mecanismo de almacenamiento</strong>. 
+    Tanto en la consola como en las pantallas táctiles de Android, los clientes interactúan únicamente mediante contratos (interfaces Java), 
+    mientras que una clase base genérica (<code>JsonDAOBase&lt;T&gt;</code>) y una fábrica (<code>DAOFactory</code>) eliminan la duplicación de código 
+    y centralizan la instanciación.
   </p>
 
   <div class="callout">
-    <strong>Flujo Arquitectónico Multicapa:</strong><br>
-    Pantalla (Activity / UI) &rarr; Contratos (<code>MateriaDAO</code> / <code>TareaDAO</code>) &rarr; Clase Base (<code>JsonDAOBase&lt;T&gt;</code>) &rarr; Archivo JSON (<code>materias.json</code> / <code>tareas.json</code>)
+    <strong>Principio de Desacoplamiento Comprobado:</strong><br>
+    Cliente (Main en consola o Activities en móvil) &rarr; Interfaces DAO &rarr; Clase Base Genérica <code>JsonDAOBase&lt;T&gt;</code> &rarr; Almacén JSON
   </div>
 
   <table class="data-table">
     <thead>
       <tr>
-        <th>Criterio de Evaluación</th>
-        <th>Detalle de Implementación en el Proyecto</th>
-        <th>Estado</th>
+        <th>Aspecto de Comparación</th>
+        <th>Parte I: Consola Java (Maven)</th>
+        <th>Parte II: Aplicación Móvil Android</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>Separación de Responsabilidades</strong></td>
-        <td>Paquetes independientes: <code>modelo</code>, <code>dao</code> y <code>ui</code>. Cero dependencias directas en la UI.</td>
-        <td><span class="badge-check">CUMPLIDO</span></td>
+        <td><strong>Ubicación en el Proyecto</strong></td>
+        <td>Carpeta <code>dao-json/</code></td>
+        <td>Módulo <code>app/</code></td>
       </tr>
       <tr>
-        <td><strong>Reutilización Genérica</strong></td>
-        <td><code>JsonDAOBase&lt;T&gt;</code> implementa inserción, búsqueda, lectura/escritura UTF-8 y autoincremento para cualquier entidad.</td>
-        <td><span class="badge-check">CUMPLIDO</span></td>
+        <td><strong>Ubicación de los JSON</strong></td>
+        <td>Carpeta local <code>datos/</code> del proyecto</td>
+        <td>Almacenamiento interno privado (<code>getFilesDir()/datos/</code>)</td>
       </tr>
       <tr>
-        <td><strong>Regla 1 (Campos Obligatorios)</strong></td>
-        <td>Nombre de la materia y título de la tarea obligatorios, validados con <code>setError()</code>.</td>
-        <td><span class="badge-check">CUMPLIDO</span></td>
+        <td><strong>Entidades</strong></td>
+        <td><code>Estudiante</code> y <code>Curso</code></td>
+        <td><code>Materia</code> y <code>Tarea</code> (Relación 1 a N)</td>
       </tr>
       <tr>
-        <td><strong>Regla 2 (Integridad de Tareas)</strong></td>
-        <td>Una tarea solo puede crearse sobre una materia existente (validación estricta de <code>materiaId</code>).</td>
-        <td><span class="badge-check">CUMPLIDO</span></td>
+        <td><strong>Clase Base Genérica</strong></td>
+        <td><code>JsonDAOBase&lt;T extends Entidad&gt;</code> (Java NIO / Files)</td>
+        <td><code>JsonDAOBase&lt;T extends Entidad&gt;</code> (Java IO / Streams)</td>
       </tr>
       <tr>
-        <td><strong>Regla 3 (Integridad Referencial)</strong></td>
-        <td>Bloqueo con alerta <code>Toast</code> que impide eliminar una materia si aún tiene tareas vinculadas.</td>
-        <td><span class="badge-check">CUMPLIDO</span></td>
+        <td><strong>Instanciación de DAOs</strong></td>
+        <td>Fábrica <code>DAOFactory</code></td>
+        <td><code>DAOFactory</code> mantenida viva en <code>AgendaApp</code></td>
       </tr>
       <tr>
-        <td><strong>Regla 4 (Formato y Fecha Real)</strong></td>
-        <td>Validación con <code>SimpleDateFormat.setLenient(false)</code> en formato <code>aaaa-mm-dd</code> (rechaza fechas inválidas como 2026-02-30).</td>
-        <td><span class="badge-check">CUMPLIDO</span></td>
+        <td><strong>Interfaz de Usuario</strong></td>
+        <td>Consola (modo demo y menú interactivo)</td>
+        <td>Pantallas táctiles con RecyclerView y TextWatcher</td>
       </tr>
     </tbody>
   </table>
 
   <div class="page-break"></div>
 
-  <!-- SECCIÓN 2: EVIDENCIAS EN DEVICE EXPLORER -->
-  <h2 class="section-title">2. Evidencias de Persistencia en Device Explorer (Requeridas por la Guía)</h2>
+  <!-- SECCIÓN 2: PARTE I - CONSOLA JAVA -->
+  <h2 class="section-title">2. Parte I: Patrón DAO con Archivo JSON en Consola (dao-json)</h2>
   <p>
-    A continuación se presentan las capturas directas del entorno Android Studio con el <strong>Device Explorer</strong> 
-    abierto en la ruta del almacenamiento interno de la aplicación (<code>/data/data/sv.edu.ufg.agenda/files/datos/</code>), tal como lo solicitan 
-    las Actividades 1 y 2 de la guía práctica:
+    En el subproyecto de consola se implementaron los Pasos 1 al 6 y todas las actividades de ampliación solicitadas en las páginas 24 y 25:
+  </p>
+  <ul>
+    <li><strong>Entidad Estudiante ampliada:</strong> Incluye el atributo <code>correo</code> además de <code>id</code>, <code>nombre</code> y <code>carrera</code>.</li>
+    <li><strong>Nuevo método de búsqueda:</strong> <code>buscarPorCarrera(String carrera)</code> agregado al contrato y a la implementación.</li>
+    <li><strong>Segunda entidad Curso:</strong> Modelo con <code>id</code>, <code>codigo</code>, <code>nombre</code> y <code>uv</code>, con sus correspondientes <code>CursoDAO</code> y <code>CursoDAOJson</code>.</li>
+    <li><strong>Reto de reutilización:</strong> <code>JsonDAOBase&lt;T&gt;</code> evita duplicar los métodos <code>cargar()</code>, <code>guardar()</code> y <code>siguienteId()</code> entre entidades.</li>
+    <li><strong>Doble modo de ejecución:</strong> Modo demostración secuencial y menú interactivo por consola mediante el argumento <code>--menu</code>.</li>
+  </ul>
+
+  <div class="screenshot-card">
+    <div class="title">Ejecución del Programa Principal de Consola (Main.java)</div>
+    <div class="caption">Salida completa de la inserción, búsqueda, actualización, eliminación y persistencia de Estudiantes y Cursos:</div>
+    <div class="code-block" style="margin: 6px auto; max-width: 95%;">
+=================================================================
+   DEMOSTRACION PARTE I: PATRON DAO CON ARCHIVO JSON (CONSOLA)
+=================================================================
+
+>>> [A] PRUEBAS DE LA ENTIDAD ESTUDIANTE <<<
+[1] Insertando estudiantes iniciales...
+--- Listado de Estudiantes ---
+2 | Luis Pérez | Ingeniería Industrial | luis.perez@ufg.edu.sv
+3 | Ana Martínez | Ingeniería en Sistemas | ana.martinez@ufg.edu.sv
+4 | Luis Pérez | Ingeniería en Sistemas | luis.perez@ufg.edu.sv
+
+[2] Buscando estudiante con ID 2 y actualizando carrera...
+Actualizado: 2 | Luis Pérez | Ingeniería Industrial | luis.perez@ufg.edu.sv
+
+[3] Eliminando estudiante con ID 1...
+--- Después de actualizar y eliminar ---
+2 | Luis Pérez | Ingeniería Industrial | luis.perez@ufg.edu.sv
+3 | Ana Martínez | Ingeniería en Sistemas | ana.martinez@ufg.edu.sv
+4 | Luis Pérez | Ingeniería en Sistemas | luis.perez@ufg.edu.sv
+
+[4] Prueba de búsqueda por carrera ('Ingeniería Industrial'):
+2 | Luis Pérez | Ingeniería Industrial | luis.perez@ufg.edu.sv
+
+>>> [B] PRUEBAS DE LA SEGUNDA ENTIDAD: CURSO (Actividad Pág. 24) <<<
+[1] Insertando cursos iniciales...
+--- Listado de Cursos ---
+1 | DAP101 | Desarrollo de Aplicaciones Multiplataforma (4 UV)
+2 | BD201 | Bases de Datos Avanzadas (4 UV)
+3 | RED301 | Redes de Computadoras (3 UV)
+
+[2] Buscando curso con ID 2 y actualizando UV...
+Actualizado: 2 | BD201 | Bases de Datos Avanzadas (5 UV)
+
+[3] Eliminando curso con ID 3 ('RED301')...
+--- Cursos después de actualizar y eliminar ---
+1 | DAP101 | Desarrollo de Aplicaciones Multiplataforma (4 UV)
+2 | BD201 | Bases de Datos Avanzadas (5 UV)
+
+[4] Prueba de búsqueda de curso por nombre ('Multiplataforma'):
+1 | DAP101 | Desarrollo de Aplicaciones Multiplataforma (4 UV)
+
+=================================================================
+Archivos persistidos: 'datos/estudiantes.json' y 'datos/cursos.json'
+=================================================================
+    </div>
+  </div>
+
+  <div class="screenshot-card">
+    <div class="title">Archivos JSON Persistidos en la Carpeta datos/</div>
+    <div class="caption">Contenido estructurado en disco demostrando la serialización con Google Gson:</div>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+      <div class="code-block" style="flex: 1; min-width: 250px;">
+<strong>datos/estudiantes.json:</strong>
+[
+  {
+    "id": 2,
+    "nombre": "Luis Pérez",
+    "carrera": "Ingeniería Industrial",
+    "correo": "luis.perez@ufg.edu.sv"
+  }
+]
+      </div>
+      <div class="code-block" style="flex: 1; min-width: 250px;">
+<strong>datos/cursos.json:</strong>
+[
+  {
+    "id": 1,
+    "codigo": "DAP101",
+    "nombre": "Desarrollo de Aplicaciones Multiplataforma",
+    "uv": 4
+  },
+  {
+    "id": 2,
+    "codigo": "BD201",
+    "nombre": "Bases de Datos Avanzadas",
+    "uv": 5
+  }
+]
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECCIÓN 3: PARTE II - EVIDENCIAS EN DEVICE EXPLORER -->
+  <h2 class="section-title">3. Parte II: Evidencias en Device Explorer (Almacenamiento Móvil)</h2>
+  <p>
+    En Android, los archivos residen en la ruta privada interna del paquete: 
+    <code>/data/data/sv.edu.ufg.agenda/files/datos/</code>. A continuación se presentan las capturas directas del <strong>Device Explorer</strong> 
+    en Android Studio tras registrar materias y tareas:
   </p>
 
   <!-- CAPTURA 1: MATERIAS.JSON -->
   <div class="screenshot-card">
     <div class="title">Actividad 1: Captura de materias.json en Device Explorer</div>
     <div class="caption">
-      Ubicación: <code>/data/data/sv.edu.ufg.agenda/files/datos/materias.json</code> · Muestra las 2 materias registradas con formato JSON y sangrado.
+      Ubicación: <code>/data/data/sv.edu.ufg.agenda/files/datos/materias.json</code> · 2 materias registradas con formato sangrado.
     </div>
     <img src="docs/img/captura_device_explorer_materias.png" alt="Captura materias.json en Device Explorer" class="screenshot-img">
     <div class="code-block" style="margin: 6px auto; max-width: 90%;">
@@ -324,7 +425,7 @@
   <div class="screenshot-card">
     <div class="title">Actividad 2: Captura de tareas.json en Device Explorer</div>
     <div class="caption">
-      Ubicación: <code>/data/data/sv.edu.ufg.agenda/files/datos/tareas.json</code> · Contiene 3 tareas pertenecientes a 2 materias distintas (materiaId: 1 y 2) e incluye el campo prioridad (Actividad 3).
+      Ubicación: <code>/data/data/sv.edu.ufg.agenda/files/datos/tareas.json</code> · 3 tareas pertenecientes a 2 materias distintas con campo prioridad (Actividad 3).
     </div>
     <img src="docs/img/captura_device_explorer_tareas.png" alt="Captura tareas.json en Device Explorer" class="screenshot-img">
     <div class="code-block" style="margin: 6px auto; max-width: 90%;">
@@ -359,20 +460,16 @@
 
   <div class="page-break"></div>
 
-  <!-- SECCIÓN 3: PANTALLAS EN EL EMULADOR -->
-  <h2 class="section-title">3. Capturas de la Aplicación en Ejecución (Emulador AVD)</h2>
-  <p>
-    Evidencias de la aplicación ejecutándose en el emulador Android (Medium Phone API 37) mostrando las funcionalidades 
-    de las Actividades 3, 4 y 5:
-  </p>
+  <!-- SECCIÓN 4: PANTALLAS FUNCIONALES Y PRUEBAS -->
+  <h2 class="section-title">4. Pantallas Funcionales y Validación de Reglas en Android</h2>
 
   <!-- PANTALLA MATERIAS -->
   <div class="screenshot-card">
-    <div class="title">Pantalla de Materias (MateriasActivity)</div>
+    <div class="title">Pantalla Principal: MateriasActivity</div>
     <div class="caption">
-      Se observa el campo de búsqueda en tiempo real (Actividad 4), el formulario de materias y el listado con el resumen de tareas pendientes (Actividad 5).
+      Muestra el formulario superior, el buscador en tiempo real (Actividad 4), la lista con RecyclerView y el resumen de tareas pendientes bajo cada materia (Actividad 5).
     </div>
-    <img src="docs/img/captura_app_materias.png" alt="MateriasActivity en el emulador" class="screenshot-img">
+    <img src="docs/img/captura_app_materias.png" alt="MateriasActivity" class="screenshot-img">
   </div>
 
   <div class="page-break"></div>
@@ -381,18 +478,18 @@
   <div class="screenshot-card">
     <div class="title">Pantalla de Tareas: Materia "Desarrollo De Apps Multiplataforma"</div>
     <div class="caption">
-      Se muestra el encabezado dinámico "0 de 2 completadas", el buscador por título, el selector de prioridad ("Media", "Baja", "Alta"), la fecha de entrega y las acciones EDITAR y ELIMINAR.
+      Encabezado dinámico "0 de 2 completadas", buscador por título, selector Spinner de prioridad ("Media", "Baja", "Alta"), fecha de entrega y acciones.
     </div>
     <img src="docs/img/captura_app_tareas_materia1.png" alt="TareasActivity Materia 1" class="screenshot-img">
   </div>
 
   <div class="page-break"></div>
 
-  <!-- PANTALLA TAREAS MATERIA 2 -->
+  <!-- PANTALLA TAREAS MATERIA 2 Y TESTS -->
   <div class="screenshot-card">
     <div class="title">Pantalla de Tareas: Materia "Base De Datos"</div>
     <div class="caption">
-      Se muestra la segunda materia ("0 de 1 completadas") con la tarea "Bases de datos relacionales" registrada con prioridad "Alta".
+      Segunda materia con la tarea "Bases de datos relacionales" asignada con prioridad "Alta".
     </div>
     <img src="docs/img/captura_app_tareas_materia2.png" alt="TareasActivity Materia 2" class="screenshot-img">
   </div>
@@ -400,7 +497,7 @@
   <!-- TEST UNITARIOS -->
   <div class="screenshot-card">
     <div class="title">Actividad 7: Ejecución Exitosa de Tests Unitarios JUnit (BUILD SUCCESSFUL)</div>
-    <div class="caption">Prueba de TareaDAOJson y MateriaDAOJson con TemporaryFolder sin necesidad de emulador (10s)</div>
+    <div class="caption">Pruebas unitarias automáticas de TareaDAOJson y MateriaDAOJson con TemporaryFolder ejecutadas en JVM en 28s:</div>
     <div class="code-block" style="margin: 6px auto; max-width: 95%;">
 > Task :app:compileDebugJavaWithJavac UP-TO-DATE
 > Task :app:compileDebugUnitTestJavaWithJavac UP-TO-DATE
@@ -408,15 +505,48 @@
 > Task :app:testReleaseUnitTest
 > Task :app:test
 
-BUILD SUCCESSFUL in 10s
-38 actionable tasks: 4 executed, 34 up-to-date
+BUILD SUCCESSFUL in 28s
+38 actionable tasks: 13 executed, 25 up-to-date
     </div>
   </div>
 
   <div class="page-break"></div>
 
-  <!-- SECCIÓN 4: RESPUESTAS TEÓRICAS Y JUSTIFICACIONES -->
-  <h2 class="section-title">4. Justificaciones y Respuestas a las Actividades</h2>
+  <!-- SECCIÓN 5: RESPUESTAS TEÓRICAS Y PREGUNTA DE REFLEXIÓN -->
+  <h2 class="section-title">5. Justificaciones Técnicas y Preguntas de Cierre</h2>
+
+  <h3>Validación de las 4 Reglas de Negocio en Android</h3>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Regla</th>
+        <th>Descripción</th>
+        <th>Mecanismo de Control en Código</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Regla 1</strong></td>
+        <td>Nombre de materia y título de tarea obligatorios.</td>
+        <td>Validado con <code>setError()</code> en <code>MateriasActivity</code> y <code>TareasActivity</code> impidiendo el guardado vacío.</td>
+      </tr>
+      <tr>
+        <td><strong>Regla 2</strong></td>
+        <td>Una tarea solo puede crearse sobre una materia que existe.</td>
+        <td>En <code>TareasActivity.onCreate()</code> se valida <code>materiaId</code>; si retorna <code>null</code>, la actividad se cierra con <code>finish()</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Regla 3</strong></td>
+        <td>No se puede eliminar una materia con tareas asociadas.</td>
+        <td><code>MateriasActivity.eliminar()</code> consulta previamente <code>tareaDAO.listarPorMateria(id)</code> y bloquea el borrado con un <code>Toast</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Regla 4</strong></td>
+        <td>Fecha de entrega válida en formato estricto aaaa-mm-dd.</td>
+        <td><code>SimpleDateFormat.setLenient(false)</code> rechaza fechas irreales en el calendario (ej. 2026-02-30).</td>
+      </tr>
+    </tbody>
+  </table>
 
   <h3>Actividad 5: Resumen por materia (¿En qué capa va el cálculo?)</h3>
   <p>
@@ -431,9 +561,6 @@ BUILD SUCCESSFUL in 10s
   </p>
 
   <h3>Actividad 6: Reto DAO en memoria (¿En qué situaciones del trabajo en equipo sirve?)</h3>
-  <p>
-    Se desarrollaron las clases <code>MateriaDAOMemoria</code> y <code>TareaDAOMemoria</code>, configurables mediante un único booleano en <code>DAOFactory</code>:
-  </p>
   <ul>
     <li>
       <strong>Desarrollo paralelo:</strong> El integrante de interfaz (Rol C) puede diseñar y depurar pantallas, adaptadores y validaciones 
@@ -448,13 +575,16 @@ BUILD SUCCESSFUL in 10s
     </li>
   </ul>
 
-  <h3>Pregunta de Reflexión del Cierre (Sección 13 de la Guía)</h3>
+  <h3>Pregunta de Reflexión del Cierre (Página 27 de la Guía)</h3>
   <div class="callout">
-    <strong>Pregunta:</strong> <em>Si mañana la institución exige guardar los datos en SQLite, ¿cuántos archivos de la carpeta <code>ui</code> tendrías que modificar?</em><br><br>
-    <strong>Respuesta:</strong> <strong>Exactamente CERO (0 archivos).</strong><br>
-    <strong>Explicación:</strong> Todas las pantallas (<code>MateriasActivity</code>, <code>TareasActivity</code>, adaptadores) fueron programadas exclusivamente 
-    contra las interfaces <code>MateriaDAO</code> y <code>TareaDAO</code>. Para migrar a SQLite o Room solo se requiere crear las clases <code>MateriaDAOSqlite</code> y <code>TareaDAOSqlite</code> 
-    y cambiar la instanciación en <code>DAOFactory</code>. La interfaz gráfica se mantiene 100% inalterada.
+    <strong>Pregunta:</strong> <em>Si mañana la institución exige guardar los datos en una base de datos (SQLite en Android o MySQL con JDBC en consola), ¿cuántas clases tendrías que modificar en tu proyecto de consola y cuántos archivos de la carpeta <code>ui</code> en tu app móvil?</em><br><br>
+    <strong>Respuesta:</strong><br>
+    &bull; En consola: <strong>Exactamente UNA sola clase</strong> (<code>DAOFactory.java</code>, cambiando la instanciación de los DAOs). El cliente <code>Main</code> permanece intacto.<br>
+    &bull; En la app móvil: <strong>Exactamente CERO (0 archivos de la carpeta <code>ui</code>)</strong>.<br><br>
+    <strong>Justificación Técnica:</strong><br>
+    Tanto en consola como en móvil, las capas consumidoras (<code>Main</code>, <code>MateriasActivity</code>, <code>TareasActivity</code> y adaptadores) fueron programadas 
+    exclusivamente contra las interfaces de contrato (<code>EstudianteDAO</code>, <code>CursoDAO</code>, <code>MateriaDAO</code>, <code>TareaDAO</code>). 
+    Para migrar a SQLite o MySQL basta con crear las nuevas clases DAO (ej. <code>MateriaDAOSqlite</code>) y cambiar la fábrica. La interfaz gráfica ni siquiera se entera de la migración.
   </div>
 
 </body>
